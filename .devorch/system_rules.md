@@ -6,21 +6,21 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
 
 ## 1. Source of Truth & Files
 
-- **R-1.1**: `BREAKDOWN.md` in `.devorch-projects/{project-name}/` is the **single source of truth** for:
+- **R-1.1**: `REQUIREMENT_ANALYSIS.md` in `.devorch-projects/{project-name}/` is the **single source of truth** for:
   - The requirement.
   - The current architecture overview.
   - The task breakdown checklist.
   - The current progress summary.
-- **R-1.2**: `STATE.json` is the authoritative machine-readable state and must always be consistent with `BREAKDOWN.md`.
-- **R-1.3**: `DECISIONS.md` must record all major architectural and technology decisions before code is written that depends on them.
-- **R-1.4**: `QUESTIONS.md` must record all open questions that could affect implementation or scope.
+- **R-1.2**: `STATE.json` is the authoritative machine-readable state and must always be consistent with `REQUIREMENT_ANALYSIS.md`.
+- **R-1.3**: `EVALUATED_OUTCOME.md` must record evaluated outcomes — all major architectural and technology decisions (and rationale) before code is written that depends on them.
+- **R-1.4**: `OPEN_QUESTIONS.md` must record questions that are still open and could affect implementation or scope until answered.
 - **R-1.5**: The `.devorch-projects/` folder is for orchestration state only and **must never** contain source code.
 
 ---
 
 ## 2. Task Management
 
-- **R-2.1**: Always update `BREAKDOWN.md` when tasks progress:
+- **R-2.1**: Always update `REQUIREMENT_ANALYSIS.md` when tasks progress:
   - When a task is defined.
   - When a task begins implementation.
   - When a task implementation is awaiting review.
@@ -32,7 +32,7 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
   - Each task should have clear acceptance criteria.
   - Tasks should be traceable back to the requirement and architecture.
 - **R-2.4**: Task ordering:
-  - Respect the order defined in `Task Breakdown` unless a new ordering is explicitly approved and reflected in `BREAKDOWN.md`.
+  - Respect the order defined in `Task Breakdown` unless a new ordering is explicitly approved and reflected in `REQUIREMENT_ANALYSIS.md`.
 
 ---
 
@@ -49,7 +49,7 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
   - `/devorch approve` after implementation approves the specific task implementation.
 - **R-3.4**: Blocking questions:
   - If a task cannot be safely implemented because of ambiguity, DevOrch must:
-    - Add a new entry to `QUESTIONS.md`.
+    - Add a new entry to `OPEN_QUESTIONS.md`.
     - Explain what is blocked and why.
     - Pause and wait for human clarification before proceeding.
 
@@ -73,20 +73,20 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
 - **R-5.1**: DevOrch must **explain planned changes before implementing**:
   - Before editing any code for a task, present:
     - The task being implemented.
-    - The rationale based on `DECISIONS.md`.
+    - The rationale based on `EVALUATED_OUTCOME.md`.
     - The list of files that will be created or modified.
     - A brief outline of the implementation approach.
 - **R-5.2**: Planning-first:
   - No code generation may occur before:
-    - The requirement is captured in `BREAKDOWN.md`.
-    - An initial architecture is outlined in `BREAKDOWN.md`.
-    - A task breakdown is defined in `BREAKDOWN.md`.
+    - The requirement is captured in `REQUIREMENT_ANALYSIS.md`.
+    - An initial architecture is outlined in `REQUIREMENT_ANALYSIS.md`.
+    - A task breakdown is defined in `REQUIREMENT_ANALYSIS.md`.
     - The human has approved the plan via `/devorch approve`.
 - **R-5.3**: Consistency:
   - Implementations must stay consistent with architecture and decisions.
   - If a better approach is discovered:
-    - Update `DECISIONS.md` with the new decision.
-    - Update `BREAKDOWN.md` if tasks change.
+    - Update `EVALUATED_OUTCOME.md` with the new decision.
+    - Update `REQUIREMENT_ANALYSIS.md` if tasks change.
     - Seek human approval again if the change is significant.
 
 ---
@@ -95,9 +95,9 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
 
 - **R-6.1**: `/devorch abort` must:
   - Mark the current orchestration as `aborted` in `STATE.json`.
-  - Add an abort note with timestamp to `BREAKDOWN.md` (e.g., in `Progress`).
+  - Add an abort note with timestamp to `REQUIREMENT_ANALYSIS.md` (e.g., in `Progress`).
 - **R-6.2**: Aborting must **not** silently delete orchestration history:
-  - Historical state files (`BREAKDOWN.md`, `DECISIONS.md`, `QUESTIONS.md`, `STATE.json`) should be preserved unless the user explicitly requests deletion.
+  - Historical state files (`REQUIREMENT_ANALYSIS.md`, `EVALUATED_OUTCOME.md`, `OPEN_QUESTIONS.md`, `STATE.json`) should be preserved unless the user explicitly requests deletion.
 - **R-6.3**: Restarting after abort:
   - A new orchestration with the same requirement should create a new project directory or explicitly reset the existing one, but never ambiguously reuse state.
 
@@ -106,7 +106,7 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
 ## 7. Code Location & Boundaries
 
 - **R-7.1**: All generated code projects must live at the **repository root level**, as siblings of `.devorch/` and `.devorch-projects/`.
-- **R-7.2**: `.devorch-projects/` must never contain runtime source code, only orchestration files (`BREAKDOWN.md`, `DECISIONS.md`, `QUESTIONS.md`, `STATE.json`, and optional logs/notes).
+- **R-7.2**: `.devorch-projects/` must never contain runtime source code, only orchestration files (`REQUIREMENT_ANALYSIS.md`, `EVALUATED_OUTCOME.md`, `OPEN_QUESTIONS.md`, `STATE.json`, and optional logs/notes).
 - **R-7.3**: DevOrch commands should treat:
   - `.devorch/` as configuration and global rules.
   - `.devorch-projects/` as orchestration state.
@@ -125,8 +125,8 @@ These rules govern how DevOrch must orchestrate development work. They are **bin
   - Whenever a change is made to the project (code or plan), ensure the relevant markdown state files are updated in the same orchestration step.
 - **R-8.4**: No silent assumptions:
   - When assumptions are required, record them either:
-    - In `DECISIONS.md` (if they effectively become decisions), or
-    - In `QUESTIONS.md` (if they remain uncertain and need confirmation).
+    - In `EVALUATED_OUTCOME.md` (if they effectively become decisions), or
+    - In `OPEN_QUESTIONS.md` (if they remain uncertain and need confirmation).
 
 ---
 

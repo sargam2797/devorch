@@ -12,9 +12,9 @@ This document defines the **canonical workflow** and how each command should int
 - **Project**: A single DevOrch orchestration instance created from a requirement.
 - **State Directory**: `.devorch-projects/{project-name}/`
 - **Source of Truth**:
-  - `BREAKDOWN.md` – requirement, architecture, tasks, progress.
-  - `DECISIONS.md` – important architectural and design decisions.
-  - `QUESTIONS.md` – open questions that block or affect work.
+  - `REQUIREMENT_ANALYSIS.md` – single source of truth: requirement summary, architecture, task breakdown, and progress.
+  - `EVALUATED_OUTCOME.md` – evaluated outcomes: architecture decisions, framework choices, and major design trade-offs.
+  - `OPEN_QUESTIONS.md` – open questions that block or affect work until answered.
   - `STATE.json` – machine-readable orchestration state.
 
 ---
@@ -23,14 +23,14 @@ This document defines the **canonical workflow** and how each command should int
 
 Each project created under `.devorch-projects/{project-name}/` MUST contain:
 
-### 2.1 BREAKDOWN.md
+### 2.1 REQUIREMENT_ANALYSIS.md
 
-**Purpose**: Single source of truth for the project.
+**Purpose**: Single source of truth for the project — requirement analysis, architecture, tasks, and progress.
 
 **Required sections (in order):**
 
 ```markdown
-# BREAKDOWN – {project-name}
+# REQUIREMENT_ANALYSIS – {project-name}
 
 ## Requirement
 - Original requirement:
@@ -62,16 +62,16 @@ Each project created under `.devorch-projects/{project-name}/` MUST contain:
 
 **Rules:**
 - Always update `Task Breakdown` checkboxes and `Progress` when any task starts, is completed, or is re-scoped.
-- Treat `BREAKDOWN.md` as the **authoritative list of tasks**; implementation must follow this list in order.
+- Treat `REQUIREMENT_ANALYSIS.md` as the **authoritative list of tasks**; implementation must follow this list in order.
 
-### 2.2 DECISIONS.md
+### 2.2 EVALUATED_OUTCOME.md
 
-**Purpose**: Log all key decisions that affect architecture, technology, and scope.
+**Purpose**: Record evaluated outcomes — decisions and rationale that affect architecture, technology, and scope.
 
 **Template:**
 
 ```markdown
-# DECISIONS – {project-name}
+# EVALUATED_OUTCOME – {project-name}
 
 ## Summary
 - This file tracks architectural and other major decisions made during the project.
@@ -92,14 +92,14 @@ Each project created under `.devorch-projects/{project-name}/` MUST contain:
   - Long term:
 ```
 
-### 2.3 QUESTIONS.md
+### 2.3 OPEN_QUESTIONS.md
 
-**Purpose**: Track open questions that require human clarification or decisions.
+**Purpose**: Track questions that are not yet resolved and require human clarification or decisions.
 
 **Template:**
 
 ```markdown
-# QUESTIONS – {project-name}
+# OPEN_QUESTIONS – {project-name}
 
 ## Open Questions
 
@@ -134,7 +134,7 @@ Each project created under `.devorch-projects/{project-name}/` MUST contain:
 **Field semantics:**
 - `stage`: One of `"planning" | "waiting_approval" | "implementing" | "review" | "completed" | "aborted"`.
 - `approved`: Whether the current checkpoint is approved.
-- `current_task`: Zero-based index into the `Task Breakdown` list in `BREAKDOWN.md`.
+- `current_task`: Zero-based index into the `Task Breakdown` list in `REQUIREMENT_ANALYSIS.md`.
 - `project_name`: Directory-safe project identifier.
 - `requirement`: Original requirement string.
 - `last_command`: The last DevOrch command that mutated state.
@@ -149,8 +149,8 @@ DevOrch follows these stages:
 1. **planning**
    - Triggered by `/devorch "requirement"` or `/devorch --plan`.
    - Create project state directory and all state files.
-   - Draft architecture and full task breakdown in `BREAKDOWN.md`.
-   - Record initial decisions in `DECISIONS.md` where applicable.
+   - Draft architecture and full task breakdown in `REQUIREMENT_ANALYSIS.md`.
+   - Record initial decisions in `EVALUATED_OUTCOME.md` where applicable.
    - Set `stage = "waiting_approval"` and `approved = false`.
    - **Always pause for human approval**.
 
@@ -160,16 +160,16 @@ DevOrch follows these stages:
 
 3. **implementing**
    - Entered after approval when executing `/devorch implement`.
-   - Select the **next unchecked task** in `BREAKDOWN.md`.
+   - Select the **next unchecked task** in `REQUIREMENT_ANALYSIS.md`.
    - Explain the planned change referencing the task and decisions.
    - Implement **only that single task** in the codebase.
-   - Update `BREAKDOWN.md` progress and `STATE.json.current_task`.
+   - Update `REQUIREMENT_ANALYSIS.md` progress and `STATE.json.current_task`.
    - Move to `stage = "review"` and `approved = false`.
 
 4. **review**
    - Await `/devorch approve` to mark the current task as accepted or `/devorch abort` to reset.
    - After approval:
-     - Mark the task checkbox as completed in `BREAKDOWN.md`.
+     - Mark the task checkbox as completed in `REQUIREMENT_ANALYSIS.md`.
      - If more tasks are pending, set `stage = "implementing"` (ready for next `/devorch implement`).
      - If no tasks remain, move to `stage = "completed"`.
 
@@ -193,7 +193,7 @@ DevOrch follows these stages:
   - **Must not implement multiple tasks per `/devorch implement` invocation.**
 - Approved checkpoints are recorded in:
   - `STATE.json` (`approved: true` after approval).
-  - Optional note in `BREAKDOWN.md` under `Progress`.
+  - Optional note in `REQUIREMENT_ANALYSIS.md` under `Progress`.
 
 ---
 

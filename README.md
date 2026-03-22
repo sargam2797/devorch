@@ -24,9 +24,9 @@ The goal is to make AI behave less like a one-shot code generator and more like 
 
 - **Captures requirements** and turns them into a structured project.
 - **Generates planning artifacts** under `.devorch-projects/{project-name}/`:
-  - `BREAKDOWN.md` – requirement, architecture, task checklist, and progress.
-  - `DECISIONS.md` – important architectural and technology decisions.
-  - `QUESTIONS.md` – open questions that need clarification.
+  - `REQUIREMENT_ANALYSIS.md` – single source of truth: requirement analysis, architecture, task checklist, and progress.
+  - `EVALUATED_OUTCOME.md` – evaluated outcomes: architecture decisions, framework choices, and major design trade-offs.
+  - `OPEN_QUESTIONS.md` – questions still open or needing clarification.
   - `STATE.json` – machine-readable orchestration state (stage, approvals, current task, etc.).
 - **Enforces a staged workflow**:
   - Requirement → Planning → Human approval → Stepwise implementation → Human approval → Completion.
@@ -46,11 +46,11 @@ The goal is to make AI behave less like a one-shot code generator and more like 
   - DevOrch drafts:
     - An architecture overview.
     - A task breakdown checklist.
-  - `BREAKDOWN.md`, `DECISIONS.md`, `QUESTIONS.md`, and `STATE.json` are initialized.
+  - `REQUIREMENT_ANALYSIS.md`, `EVALUATED_OUTCOME.md`, `OPEN_QUESTIONS.md`, and `STATE.json` are initialized.
   - The project enters the `waiting_approval` stage.
 
 - **Your role**:
-  - Open the generated `BREAKDOWN.md` and `DECISIONS.md`.
+  - Open the generated `REQUIREMENT_ANALYSIS.md` and `EVALUATED_OUTCOME.md`.
   - Review the requirement, architecture, and tasks.
 
 ### 2. Approve the Plan
@@ -65,13 +65,13 @@ The goal is to make AI behave less like a one-shot code generator and more like 
 
 - **Command**: `/devorch implement`
 - **What happens**:
-  - DevOrch selects the **next unchecked task** in `BREAKDOWN.md`.
+  - DevOrch selects the **next unchecked task** in `REQUIREMENT_ANALYSIS.md`.
   - It **explains the planned changes first**:
     - Which task is being implemented.
     - Which files in the repo root will be added or modified.
     - How the implementation aligns with recorded decisions.
   - It then implements **only that single task** in the codebase.
-  - Progress is updated in `BREAKDOWN.md` and `STATE.json`.
+  - Progress is updated in `REQUIREMENT_ANALYSIS.md` and `STATE.json`.
   - The project enters the `review` stage, awaiting your approval.
 
 - **Your role**:
@@ -82,7 +82,7 @@ The goal is to make AI behave less like a one-shot code generator and more like 
 - **Approve implementation**:
   - **Command**: `/devorch approve`
   - **Effect**:
-    - Marks the current task as completed in `BREAKDOWN.md`.
+    - Marks the current task as completed in `REQUIREMENT_ANALYSIS.md`.
     - Advances `STATE.json.current_task` to the next task.
     - If tasks remain, stage goes back to `implementing`.
     - If all tasks are done, stage moves to `completed`.
@@ -91,7 +91,7 @@ The goal is to make AI behave less like a one-shot code generator and more like 
   - **Command**: `/devorch abort`
   - **Effect**:
     - Marks the project as `aborted` in `STATE.json`.
-    - Adds an abort note to `BREAKDOWN.md`.
+    - Adds an abort note to `REQUIREMENT_ANALYSIS.md`.
     - Leaves all state files in place as history.
 
 ### 5. Resume at Any Time
@@ -144,9 +144,9 @@ In Cursor, run one of:
 DevOrch automatically creates orchestration state under:
 
 - `.devorch-projects/{project-name}/`
-  - `BREAKDOWN.md` (source of truth: requirement, architecture, tasks, progress)
-  - `DECISIONS.md` (key architecture decisions)
-  - `QUESTIONS.md` (clarifications needed)
+  - `REQUIREMENT_ANALYSIS.md` (source of truth: requirement, architecture, tasks, progress)
+  - `EVALUATED_OUTCOME.md` (evaluated outcomes: decisions and rationale)
+  - `OPEN_QUESTIONS.md` (open items until answered)
   - `STATE.json` (workflow stage and task index)
 
 The actual project code is created/edited in the **repository root** (not inside `.devorch-projects/`).

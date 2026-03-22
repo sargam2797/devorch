@@ -1,6 +1,6 @@
 ---
 name: devorch
-description: Orchestrates a human-in-the-loop developer workflow using the /devorch command and markdown state files (BREAKDOWN.md, DECISIONS.md, QUESTIONS.md, STATE.json). Use when the user runs /devorch, asks to start a project from a requirement, or wants step-by-step planning/implementation with approval checkpoints.
+description: Orchestrates a human-in-the-loop developer workflow using the /devorch command and markdown state files (REQUIREMENT_ANALYSIS.md, EVALUATED_OUTCOME.md, OPEN_QUESTIONS.md, STATE.json). Use when the user runs /devorch, asks to start a project from a requirement, or wants step-by-step planning/implementation with approval checkpoints.
 ---
 
 ## DevOrch (project skill)
@@ -26,9 +26,9 @@ All orchestration state lives under:
 
 The directory contains:
 
-- `BREAKDOWN.md` (single source of truth)
-- `DECISIONS.md` (architecture + major decisions)
-- `QUESTIONS.md` (open questions for the user)
+- `REQUIREMENT_ANALYSIS.md` (single source of truth: requirement analysis, architecture, tasks, progress)
+- `EVALUATED_OUTCOME.md` (evaluated outcomes: architecture, framework choices, major decisions)
+- `OPEN_QUESTIONS.md` (questions open until answered)
 - `STATE.json` (machine-readable state)
 
 **Code must be created/edited in the repository root** (not inside `.devorch-projects/`).
@@ -42,8 +42,8 @@ The directory contains:
 - Always wait for explicit approval (`/devorch approve`) before implementing.
 - Implement **one task at a time**.
 - After implementing a single task, pause and ask the user to review. Do not continue until approved.
-- Keep `BREAKDOWN.md` updated whenever task status changes.
-- If ambiguity blocks implementation, add an entry to `QUESTIONS.md` and pause.
+- Keep `REQUIREMENT_ANALYSIS.md` updated whenever task status changes.
+- If ambiguity blocks implementation, add an entry to `OPEN_QUESTIONS.md` and pause.
 
 ---
 
@@ -53,7 +53,7 @@ The directory contains:
 
 1. **Analyze the requirement**
    - Extract goals, constraints, non-goals, and acceptance criteria.
-   - Identify ambiguities → add to `QUESTIONS.md`.
+   - Identify ambiguities → add to `OPEN_QUESTIONS.md`.
 
 2. **Determine `project-name`**
    - Prefer a directory-safe slug derived from the requirement.
@@ -69,25 +69,25 @@ The directory contains:
 
 4. **Generate state files**
    - Create/overwrite the following files in `.devorch-projects/{project-name}/`:
-     - `BREAKDOWN.md`
-     - `DECISIONS.md`
-     - `QUESTIONS.md`
+     - `REQUIREMENT_ANALYSIS.md`
+     - `EVALUATED_OUTCOME.md`
+     - `OPEN_QUESTIONS.md`
      - `STATE.json`
 
 5. **Populate the files**
 
-**`BREAKDOWN.md`** must include:
+**`REQUIREMENT_ANALYSIS.md`** must include:
 - Requirement summary (include original quoted requirement)
 - Architecture overview (high-level components + data flow)
 - Task breakdown checklist (small, verifiable tasks; each with acceptance criteria)
 - Progress (stage + current task index + notes)
 
-**`DECISIONS.md`** must include:
-- Initial decisions (framework/language choices if applicable)
+**`EVALUATED_OUTCOME.md`** must include:
+- Initial evaluated outcomes (framework/language choices if applicable)
 - Design patterns to use (when relevant)
-- A decision log format with dates and consequences
+- A decision log format with dates and consequences (same role as prior “decisions” file)
 
-**`QUESTIONS.md`** must include:
+**`OPEN_QUESTIONS.md`** must include:
 - A list of clarification questions (if any)
 - Status per question (open/answered/discarded)
 
@@ -118,7 +118,7 @@ Suggested initial `STATE.json` shape:
 ### `/devorch` (resume last workflow)
 
 - Locate the most relevant project in `.devorch-projects/` (prefer the most recently modified).
-- Read `STATE.json` and `BREAKDOWN.md`.
+- Read `STATE.json` and `REQUIREMENT_ANALYSIS.md`.
 - Summarize current stage, current task, and next expected command.
 - Do not change any state or code.
 
@@ -126,8 +126,8 @@ Suggested initial `STATE.json` shape:
 
 ### `/devorch --plan` (planning-only)
 
-- (Re)generate architecture + task breakdown in `BREAKDOWN.md`.
-- Update `DECISIONS.md` / `QUESTIONS.md` as needed.
+- (Re)generate architecture + task breakdown in `REQUIREMENT_ANALYSIS.md`.
+- Update `EVALUATED_OUTCOME.md` / `OPEN_QUESTIONS.md` as needed.
 - Do not write or modify project code.
 - Set state to `awaiting_approval` and pause for `/devorch approve`.
 
@@ -139,7 +139,7 @@ Suggested initial `STATE.json` shape:
   - Approves planning; transition to `implementing`.
 - If stage is `review`:
   - Approves the last implemented task:
-    - Mark it complete in `BREAKDOWN.md`.
+    - Mark it complete in `REQUIREMENT_ANALYSIS.md`.
     - Advance `current_task`.
     - Transition to `implementing` (or `completed` if no tasks remain).
 - Otherwise:
@@ -154,10 +154,10 @@ Preconditions:
 - Planning must have been approved.
 
 Steps:
-1. Select the next unchecked task in `BREAKDOWN.md`.
+1. Select the next unchecked task in `REQUIREMENT_ANALYSIS.md`.
 2. Explain planned changes (files to touch + approach) before editing any code.
 3. Implement exactly that one task in the repository root.
-4. Update `BREAKDOWN.md` progress and `STATE.json`.
+4. Update `REQUIREMENT_ANALYSIS.md` progress and `STATE.json`.
 5. Set stage to `review`, set `approved=false`, and pause for user review.
 
 ---
@@ -165,6 +165,6 @@ Steps:
 ### `/devorch abort` (reset workflow)
 
 - Mark the workflow as `aborted` in `STATE.json`.
-- Add an abort note in `BREAKDOWN.md` progress.
+- Add an abort note in `REQUIREMENT_ANALYSIS.md` progress.
 - Preserve state files unless the user explicitly asks to delete them.
 

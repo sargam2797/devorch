@@ -32,7 +32,7 @@ All commands are intended to be run inside Cursor (for example via slash command
    - Never require the user to manually create the project folder.
 
 4. **Create / overwrite project state files**
-   - `BREAKDOWN.md`
+   - `REQUIREMENT_ANALYSIS.md`
      - Fill with the template from `workflow.md`:
        - `Requirement` section: embed the original requirement.
        - `Architecture` section: draft a high-level architecture (no code).
@@ -44,9 +44,9 @@ All commands are intended to be run inside Cursor (for example via slash command
          - `Last updated: {now}`
          - `Current task index: 0`
          - `Notes: Initial planning created. Awaiting approval.`
-   - `DECISIONS.md`
+   - `EVALUATED_OUTCOME.md`
      - Initialize with an empty decision log plus at least one initial decision if applicable (e.g., choice of framework, language, or stack).
-   - `QUESTIONS.md`
+   - `OPEN_QUESTIONS.md`
      - Initialize with an empty `Open Questions` list.
      - Optionally add questions when the requirement is ambiguous.
    - `STATE.json`
@@ -67,7 +67,7 @@ All commands are intended to be run inside Cursor (for example via slash command
 
 5. **Draft architecture and task breakdown**
    - Use the requirement to propose:
-     - A high-level architecture in `BREAKDOWN.md > Architecture`.
+     - A high-level architecture in `REQUIREMENT_ANALYSIS.md > Architecture`.
      - A linear `Task Breakdown` checklist (ideally 5–20 tasks).
 
 6. **Pause for human approval**
@@ -99,7 +99,7 @@ All commands are intended to be run inside Cursor (for example via slash command
        - Re-present the current architecture, tasks, and questions.
        - Prompt for `/devorch approve` or `/devorch abort`.
      - `implementing`:
-       - Summarize the current task (from `BREAKDOWN.md`).
+       - Summarize the current task (from `REQUIREMENT_ANALYSIS.md`).
        - Propose next steps and wait for `/devorch implement` to actually modify code.
      - `review`:
        - Remind the user that a task implementation is awaiting approval.
@@ -130,7 +130,7 @@ All commands are intended to be run inside Cursor (for example via slash command
        - `stage = "implementing"`
      - Append a history entry:
        - `"Planning approved by human."`
-     - Optionally add a note in `BREAKDOWN.md > Progress` indicating planning approval and timestamp.
+     - Optionally add a note in `REQUIREMENT_ANALYSIS.md > Progress` indicating planning approval and timestamp.
    - Next step:
      - Instruct user to run `/devorch implement` to start implementing the first task.
 
@@ -138,8 +138,8 @@ All commands are intended to be run inside Cursor (for example via slash command
    - Interpretation: Approve the implemented task.
    - Actions:
      - Set `approved = true`.
-     - Mark the current task checkbox as completed in `BREAKDOWN.md > Task Breakdown`.
-     - Update `BREAKDOWN.md > Progress`:
+     - Mark the current task checkbox as completed in `REQUIREMENT_ANALYSIS.md > Task Breakdown`.
+     - Update `REQUIREMENT_ANALYSIS.md > Progress`:
        - `Current task index` to the next task.
        - Add a short note about approval and timestamp.
      - In `STATE.json`:
@@ -168,7 +168,7 @@ All commands are intended to be run inside Cursor (for example via slash command
    - Require a requirement string (prefer `/devorch "requirement"`).
 
 2. **If an active project exists**
-   - Read `STATE.json` and `BREAKDOWN.md`.
+   - Read `STATE.json` and `REQUIREMENT_ANALYSIS.md`.
    - Recompute or refine:
      - `Architecture` section.
      - `Task Breakdown` section.
@@ -186,7 +186,7 @@ All commands are intended to be run inside Cursor (for example via slash command
 
 ## `/devorch implement`
 
-**Purpose**: Implement the **next pending task** from `BREAKDOWN.md`.
+**Purpose**: Implement the **next pending task** from `REQUIREMENT_ANALYSIS.md`.
 
 ### Behavior
 
@@ -204,8 +204,8 @@ All commands are intended to be run inside Cursor (for example via slash command
    - Before editing any files:
      - Present:
        - The selected task text.
-       - Relevant decisions from `DECISIONS.md`.
-       - Any open questions from `QUESTIONS.md` that may impact the task.
+       - Relevant decisions from `EVALUATED_OUTCOME.md`.
+       - Any open questions from `OPEN_QUESTIONS.md` that may impact the task.
      - Describe:
        - Files expected to be added or changed.
        - Rough outline of the implementation.
@@ -213,10 +213,10 @@ All commands are intended to be run inside Cursor (for example via slash command
 4. **Implement exactly one task**
    - Modify project code in the repository root according to the planned task.
    - Do not modify other unrelated tasks, even if they appear trivial.
-   - Keep implementation consistent with `DECISIONS.md`.
+   - Keep implementation consistent with `EVALUATED_OUTCOME.md`.
 
 5. **Update state and pause for review**
-   - Update `BREAKDOWN.md > Progress`:
+   - Update `REQUIREMENT_ANALYSIS.md > Progress`:
      - Record that task `{index}` has been implemented and is awaiting review.
    - Update `STATE.json`:
      - `stage = "review"`
@@ -245,8 +245,8 @@ All commands are intended to be run inside Cursor (for example via slash command
        - `"Orchestration aborted by human."`
 
 3. **Handle state files**
-   - Option A (recommended default): **Preserve** existing `BREAKDOWN.md`, `DECISIONS.md`, and `QUESTIONS.md` as a historical artifact.
-     - Optionally append notes at the top of `BREAKDOWN.md`:
+   - Option A (recommended default): **Preserve** existing `REQUIREMENT_ANALYSIS.md`, `EVALUATED_OUTCOME.md`, and `OPEN_QUESTIONS.md` as a historical artifact.
+     - Optionally append notes at the top of `REQUIREMENT_ANALYSIS.md`:
        - Indicate that the project has been aborted, with timestamp.
    - Option B (explicit future extension): Delete and reinitialize state.
 
@@ -260,7 +260,7 @@ All commands are intended to be run inside Cursor (for example via slash command
 
 All commands must respect the rules defined in `.devorch/system_rules.md`, including:
 
-- Always keep `BREAKDOWN.md` and `STATE.json` in sync.
+- Always keep `REQUIREMENT_ANALYSIS.md` and `STATE.json` in sync.
 - Implement at most one task per `/devorch implement`.
 - Never push commits or run `git push` without explicit human instruction.
 - Never skip approval checkpoints (`waiting_approval` or `review` stages).
