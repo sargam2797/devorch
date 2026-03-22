@@ -1,5 +1,7 @@
 ## DevOrch – Markdown-Driven AI Dev Orchestration
 
+*AI developer orchestrator — structured workflows with human-in-the-loop checkpoints.*
+
 DevOrch is a small orchestration framework designed to run inside Cursor. It lets AI agents and humans collaborate on software projects using **markdown state files** as the source of truth, enforcing a **human-in-the-loop, checkpointed workflow** from requirement to implementation.
 
 DevOrch never skips approval checkpoints and never pushes code without explicit instruction.
@@ -148,4 +150,3 @@ DevOrch automatically creates orchestration state under:
   - `STATE.json` (workflow stage and task index)
 
 The actual project code is created/edited in the **repository root** (not inside `.devorch-projects/`).
-
